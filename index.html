@@ -1,0 +1,1079 @@
+<title>Nihongo Verb Quest</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&family=Zen+Maru+Gothic:wght@500;700;900&display=swap">
+<style>
+/* Layout: one column of chunky, pressable "bricks" on a pale sage ground that matches the class slides.
+   Games open from a menu grid; each round is a full-width stage with a progress bar on top. */
+:root{
+  --bg:#EEF0D6; --surface:#FAFAEC; --surface-2:#E2E6C2; --ink:#16181A; --muted:#566049; --line:#C5CCA0;
+  --red:#DE4437; --red-soft:#F9D5CF;
+  --blue:#2763D6; --blue-soft:#D4E3FA;
+  --amber:#E9A010; --amber-soft:#FBE8B8;
+  --green:#2A9453; --green-soft:#CDEED9;
+  --font:"Nunito","Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",system-ui,sans-serif;
+  --jp:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic","Noto Sans JP",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12171A; --surface:#1C2428; --surface-2:#273238; --ink:#F2F4E6; --muted:#A6B09A; --line:#37433C;
+  --red:#FF7B6D; --red-soft:#4B2824; --blue:#7EA8FF; --blue-soft:#1D3253; --amber:#FFC24A; --amber-soft:#4B3B14;
+  --green:#5FD28F; --green-soft:#1B402B; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12171A; --surface:#1C2428; --surface-2:#273238; --ink:#F2F4E6; --muted:#A6B09A; --line:#37433C;
+  --red:#FF7B6D; --red-soft:#4B2824; --blue:#7EA8FF; --blue-soft:#1D3253; --amber:#FFC24A; --amber-soft:#4B3B14;
+  --green:#5FD28F; --green-soft:#1B402B; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.45;margin:0;
+  padding-block:14px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:920px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.15}
+h2{font-size:1.5rem;font-weight:900}
+h3{font-size:1.1rem;font-weight:800}
+p{margin:0}
+.jp{font-family:var(--jp)}
+ruby{ruby-position:over}
+rt{font-size:.5em;font-weight:700;color:var(--muted);letter-spacing:0}
+.nofuri rt{display:none}
+.muted{color:var(--muted)}
+small{font-size:.78em}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+/* buttons */
+.btn{border:2.5px solid var(--ink);background:var(--surface);border-radius:14px;padding:.55em 1em;font-weight:800;cursor:pointer;
+  box-shadow:0 4px 0 var(--ink);transition:transform .06s,box-shadow .06s;display:inline-flex;align-items:center;justify-content:center;gap:.4em;text-align:center}
+.btn:active:not([disabled]){transform:translateY(4px);box-shadow:0 0 0 var(--ink)}
+.btn.primary{background:var(--ink);color:var(--bg)}
+.btn.sm{padding:.3em .7em;font-size:.9rem;box-shadow:0 3px 0 var(--ink);border-radius:11px}
+.btn.sm:active:not([disabled]){transform:translateY(3px)}
+.btn[disabled]{opacity:.4;cursor:default}
+.btn.good{background:var(--green-soft);border-color:var(--green);box-shadow:0 4px 0 var(--green)}
+.btn.bad{background:var(--red-soft);border-color:var(--red);box-shadow:0 4px 0 var(--red)}
+.chip{border:2px solid var(--ink);border-radius:999px;background:var(--surface);padding:.3em .85em;font-weight:800;cursor:pointer;font-size:.92rem}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+
+/* top bar */
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.15rem}
+.stamp{width:38px;height:38px;border-radius:9px;background:var(--red);color:#fff;display:grid;place-items:center;font-family:var(--jp);font-weight:900;font-size:1.35rem;transform:rotate(-5deg);box-shadow:0 3px 0 var(--ink);border:2.5px solid var(--ink)}
+.topr{display:flex;gap:8px;align-items:center}
+.xpchip{display:flex;align-items:center;gap:8px;border:2px solid var(--ink);border-radius:999px;padding:.2em .8em .2em .25em;background:var(--surface);font-weight:800;font-size:.9rem;cursor:pointer}
+.lvl{background:var(--amber);color:#1b1300;border-radius:999px;min-width:1.9em;height:1.9em;display:grid;place-items:center;font-weight:900}
+
+/* home */
+.hero{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:end}
+.hero h1{font-size:clamp(1.9rem,6vw,3rem);font-weight:900;letter-spacing:-.01em}
+.hero .jpbig{font-family:var(--jp);font-weight:900}
+.hero p{color:var(--muted);max-width:46ch;margin-top:6px}
+.meter{height:12px;border:2.5px solid var(--ink);border-radius:99px;background:var(--surface);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--green);border-radius:99px;transition:width .4s}
+.group h3{margin:0 0 10px;font-size:.85rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.games{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.game{display:flex;gap:12px;align-items:center;text-align:left;border:2.5px solid var(--ink);border-radius:18px;background:var(--surface);padding:12px;cursor:pointer;box-shadow:0 5px 0 var(--ink);min-width:0}
+.game:active{transform:translateY(5px);box-shadow:none}
+.game .g{flex:none;width:56px;height:56px;border-radius:14px;border:2.5px solid var(--ink);display:grid;place-items:center;font-family:var(--jp);font-weight:900;font-size:1.9rem}
+.game b{display:block;font-size:1.05rem;font-weight:900}
+.game span.sub{display:block;color:var(--muted);font-size:.86rem;line-height:1.3}
+.game .stars{font-size:.85rem;letter-spacing:.1em;color:var(--amber)}
+.c-red{background:var(--red-soft)}.c-blue{background:var(--blue-soft)}.c-amber{background:var(--amber-soft)}.c-green{background:var(--green-soft)}.c-gray{background:var(--surface-2)}
+.feature{border:2.5px solid var(--ink);border-radius:20px;background:var(--amber-soft);padding:14px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.feature .ladder-mini{display:flex;flex-direction:column;gap:6px;font-family:var(--jp);font-weight:900;font-size:1.15rem}
+
+/* bricks and ladder */
+.brick{display:inline-flex;align-items:center;padding:.1em .55em;border-radius:11px;border:2.5px solid var(--ink);font-family:var(--jp);font-weight:900;white-space:nowrap}
+.b-stem{background:var(--surface-2)}.b-ma{background:var(--blue-soft);border-color:var(--blue)}.b-no{background:var(--red-soft);border-color:var(--red)}.b-bef{background:var(--amber-soft);border-color:var(--amber)}
+.b-thing{background:var(--green-soft);border-color:var(--green)}
+.lrow{display:grid;grid-template-columns:7.5em 1fr auto;gap:8px 12px;align-items:center;padding:10px 0;border-top:2px dashed var(--line)}
+.lrow:first-child{border-top:0}
+.llab{font-weight:900;font-size:.85rem;text-transform:uppercase;letter-spacing:.06em}
+.lbricks{font-size:1.5rem;display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.len{grid-column:2/3;color:var(--muted);font-weight:700;font-size:.9rem}
+.len small{display:block}
+.lrow .btn{grid-row:1/3;grid-column:3}
+.card{border:2.5px solid var(--ink);border-radius:20px;background:var(--surface);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.note{border-left:6px solid var(--blue);background:var(--blue-soft);border-radius:0 12px 12px 0;padding:10px 14px}
+.note.red{border-color:var(--red);background:var(--red-soft)}
+
+/* verb picker */
+.vpick{display:flex;gap:8px;overflow-x:auto;padding:4px 4px 10px;margin:-4px}
+.vp{flex:none;border:2.5px solid var(--ink);border-radius:14px;background:var(--surface);padding:6px 12px;font-family:var(--jp);font-weight:900;font-size:1.15rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;min-width:4.6em}
+.vp[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.vp span{font-size:1.25rem;line-height:1}
+
+/* flash cards */
+.deck{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.wc{border:2.5px solid var(--ink);border-radius:16px;background:var(--surface);padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;box-shadow:0 4px 0 var(--ink);min-width:0}
+.wc:active{transform:translateY(4px);box-shadow:none}
+.wc .pic{font-size:2rem;line-height:1.1}
+.wc .w{font-family:var(--jp);font-weight:900;font-size:1.35rem;text-align:center;overflow-wrap:anywhere}
+.wc .e{font-size:.8rem;color:var(--muted);text-align:center;font-weight:700}
+
+/* round */
+.rbar{display:flex;align-items:center;gap:12px}
+.prog{flex:1;height:14px;border:2.5px solid var(--ink);border-radius:99px;background:var(--surface);overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--blue);transition:width .3s}
+.rscore{font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap}
+.stage{border:2.5px solid var(--ink);border-radius:22px;background:var(--surface);padding:clamp(12px,3vw,22px);display:flex;flex-direction:column;gap:16px;min-width:0}
+.qhead{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.qpic{font-size:3.2rem;line-height:1;width:84px;height:84px;display:grid;place-items:center;border-radius:20px;background:var(--surface-2);border:2.5px solid var(--ink);flex:none}
+.qword{font-family:var(--jp);font-weight:900;font-size:clamp(2.2rem,9vw,3.4rem);line-height:1.15}
+.qen{font-weight:800;color:var(--muted)}
+.target{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sw{display:inline-flex;border:2.5px solid var(--ink);border-radius:12px;overflow:hidden;font-weight:900}
+.sw span{padding:.25em .8em;color:var(--muted)}
+.sw span.on{background:var(--ink);color:var(--bg)}
+.prompt{font-size:1.1rem;font-weight:800}
+.tgt-en{font-size:1.25rem;font-weight:900}
+.arow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:68px;padding:8px 10px;border:2.5px dashed var(--ink);border-radius:16px;background:var(--bg);font-family:var(--jp);font-size:1.8rem;font-weight:900}
+.arow .pre{display:inline-flex}
+.slots{display:inline-flex;gap:6px;flex-wrap:wrap}
+.ph{color:var(--muted);font-size:1rem;font-family:var(--font);font-weight:700}
+.bank{display:flex;gap:8px;flex-wrap:wrap}
+.tile{border:2.5px solid var(--ink);border-radius:12px;background:var(--surface);font-family:var(--jp);font-weight:900;font-size:1.5rem;min-width:52px;min-height:52px;padding:.1em .5em;cursor:pointer;box-shadow:0 4px 0 var(--ink)}
+.tile:active:not([disabled]){transform:translateY(4px);box-shadow:none}
+.tile[disabled]{opacity:.25;box-shadow:none;cursor:default}
+.tile.in{background:var(--blue-soft);border-color:var(--blue);box-shadow:0 4px 0 var(--blue)}
+.arow.ok .tile.in{background:var(--green-soft);border-color:var(--green);box-shadow:0 4px 0 var(--green)}
+.arow.bad .tile.in{background:var(--red-soft);border-color:var(--red);box-shadow:0 4px 0 var(--red)}
+.acts{display:flex;gap:10px;flex-wrap:wrap}
+.acts .primary{margin-left:auto}
+.ainput{flex:1;min-width:6ch;border:0;background:transparent;font:inherit;color:var(--ink);outline:none;padding:0}
+.padbar{display:flex;gap:8px;flex-wrap:wrap}
+.pad{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;max-width:380px}
+.key{border:2.5px solid var(--ink);border-radius:11px;background:var(--surface);cursor:pointer;font-family:var(--jp);font-weight:900;font-size:1.45rem;padding:4px 0 2px;display:flex;flex-direction:column;align-items:center;line-height:1.1;box-shadow:0 3px 0 var(--ink);min-height:50px}
+.key:active{transform:translateY(3px);box-shadow:none}
+.key small{font-family:var(--font);font-size:.6rem;font-weight:800;color:var(--muted);min-height:.8em}
+.key.empty{visibility:hidden}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.choice{border:2.5px solid var(--ink);border-radius:16px;background:var(--surface);padding:12px 10px;font-family:var(--jp);font-weight:900;font-size:1.45rem;cursor:pointer;box-shadow:0 4px 0 var(--ink);overflow-wrap:anywhere}
+.choice:active:not([disabled]){transform:translateY(4px);box-shadow:none}
+.choice.correct{background:var(--green-soft);border-color:var(--green);box-shadow:0 4px 0 var(--green)}
+.choice.wrong{background:var(--red-soft);border-color:var(--red);box-shadow:0 4px 0 var(--red)}
+.choice small{display:block;font-family:var(--font);font-weight:700;color:var(--muted);font-size:.75rem}
+.locked .tile:not(.in),.locked .key,.locked .choice,.locked .btn:not(.keep){pointer-events:none}
+.locked .tile.in{pointer-events:none}
+.fb{border:2.5px solid var(--ink);border-radius:20px;padding:14px 16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;animation:pop .22s ease-out}
+.fb.ok{background:var(--green-soft);border-color:var(--green)}
+.fb.no{background:var(--red-soft);border-color:var(--red)}
+.fb .msg{flex:1 1 220px;min-width:0}
+.fb .msg b.big{font-size:1.25rem;display:block}
+.fb .jp{font-weight:900}
+@keyframes pop{from{transform:scale(.97);opacity:.4}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.blank{display:inline-block;min-width:3.2em;border-bottom:4px solid var(--ink);margin:0 .1em}
+.sentence{font-family:var(--jp);font-weight:900;font-size:clamp(1.6rem,6vw,2.4rem);line-height:1.9}
+
+/* scene */
+.scene{width:100%;max-width:420px;align-self:center;border:2.5px solid var(--ink);border-radius:18px;overflow:hidden;background:var(--blue-soft)}
+.scene svg{display:block;width:100%;height:auto}
+.canvas-wrap{align-self:center;max-width:100%;border:2.5px solid var(--ink);border-radius:16px;overflow:hidden;background:var(--bg);touch-action:none}
+.canvas-wrap canvas{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair}
+
+/* end screen */
+.end{align-items:center;text-align:center}
+.bigstars{font-size:3rem;letter-spacing:.15em;color:var(--amber)}
+.missed{display:flex;flex-direction:column;gap:8px;width:100%;text-align:left}
+.missed div{border:2px solid var(--line);border-radius:12px;padding:8px 12px;background:var(--bg)}
+
+/* progress */
+.pgrid{width:100%;border-collapse:collapse;font-size:.95rem}
+.pgrid th,.pgrid td{padding:6px 8px;border-bottom:2px dashed var(--line);text-align:center}
+.pgrid th:first-child,.pgrid td:first-child{text-align:left}
+.tbl{overflow-x:auto}
+.dot{display:inline-block;width:22px;height:22px;border-radius:50%;border:2.5px solid var(--ink);background:var(--surface)}
+.dot.g{background:var(--green)}.dot.a{background:var(--amber)}.dot.r{background:var(--red)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;color:var(--muted);font-weight:700;align-items:center}
+
+/* modal */
+.mback{position:fixed;inset:0;background:rgba(10,14,12,.55);display:grid;place-items:center;padding:16px;z-index:50;overflow-y:auto}
+.modal{background:var(--bg);color:var(--ink);border:2.5px solid var(--ink);border-radius:22px;max-width:560px;width:100%;padding:18px;display:flex;flex-direction:column;gap:14px;max-height:100%;overflow-y:auto}
+.mhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.toggle{display:flex;gap:12px;align-items:center;padding:8px 0;border-top:2px dashed var(--line);font-weight:800}
+.toggle input{width:24px;height:24px;accent-color:var(--blue)}
+.toggle small{display:block;font-weight:600;color:var(--muted)}
+.cfgl{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.lvbtn{border:2.5px solid var(--ink);border-radius:16px;background:var(--surface);padding:12px;text-align:left;cursor:pointer;box-shadow:0 4px 0 var(--ink)}
+.lvbtn[aria-pressed="true"]{background:var(--blue-soft);border-color:var(--blue);box-shadow:0 4px 0 var(--blue)}
+.lvbtn b{display:block;font-size:1.05rem}
+.lvbtn span{font-size:.88rem;color:var(--muted);display:block}
+.lvbtn .stars{color:var(--amber);letter-spacing:.1em}
+.sheetpic{font-size:4rem;line-height:1}
+@media (max-width:520px){
+  .lrow{grid-template-columns:1fr auto}
+  .llab{grid-column:1/3}
+  .len{grid-column:1}
+  .lrow .btn{grid-row:2/4;grid-column:2}
+  .hero{grid-template-columns:1fr}
+}
+</style>
+
+<div class="wrap" id="app"></div>
+<div id="modal"></div>
+
+<script>
+/* ============================================================
+   Utilities
+   ============================================================ */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const rnd=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const sample=(a,n)=>shuffle(a).slice(0,n);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KANJI=/[一-鿿]/;
+const app=$('#app');
+
+/* ruby: puts the reading over the kanji part only, keeping trailing kana (okurigana) outside */
+function ruby(k,h){
+  if(!k||!KANJI.test(k)||!h) return esc(k||h||'');
+  let s=0;
+  while(s<k.length-1&&s<h.length-1&&k[k.length-1-s]===h[h.length-1-s]) s++;
+  return '<ruby>'+esc(k.slice(0,k.length-s))+'<rt>'+esc(h.slice(0,h.length-s))+'</rt></ruby>'+esc(k.slice(k.length-s));
+}
+
+/* ============================================================
+   Saved progress (this browser only)
+   ============================================================ */
+const KEY='nihongo-verb-quest-v1';
+let S={xp:0,m:{},best:{},rounds:0,streak:0,last:'',set:{furi:true,kanji:true,romaji:true,sound:true}};
+try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);S={...S,...o,set:{...S.set,...(o.set||{})}}}}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const applySet=()=>document.documentElement.classList.toggle('nofuri',!S.set.furi);
+applySet();
+const jp=(k,h)=>S.set.kanji&&k?ruby(k,h||k):esc(h||k);
+
+const RANKS=['Kana Seed','Kana Sprout','Verb Explorer','Brush Apprentice','Kanji Ninja','Past-Tense Pro','Dragon Scholar'];
+const lvlOf=xp=>{const l=Math.floor(xp/150);return{n:l+1,name:RANKS[Math.min(l,RANKS.length-1)],pct:(xp%150)/150*100}};
+function record(key,ok){
+  const m=S.m[key]||(S.m[key]={c:0,w:0});ok?m.c++:m.w++;
+  const d=new Date(),day=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  if(S.last!==day){const y=new Date(d-864e5);const yd=y.getFullYear()+'-'+(y.getMonth()+1)+'-'+y.getDate();S.streak=S.last===yd?S.streak+1:1;S.last=day}
+  save();
+}
+function pickW(pool,keyFn){
+  const w=pool.map(x=>{const m=S.m[keyFn(x)]||{c:0,w:0};return Math.max(.3,1+2.5*m.w-.25*Math.min(m.c,4)+(m.c+m.w===0?.8:0))});
+  let t=Math.random()*w.reduce((a,b)=>a+b,0);
+  for(let i=0;i<pool.length;i++){t-=w[i];if(t<=0)return pool[i]}
+  return pool[pool.length-1];
+}
+
+/* ============================================================
+   Sound
+   ============================================================ */
+let AC;
+function beep(ok){
+  if(!S.set.sound)return;
+  try{
+    AC=AC||new(window.AudioContext||window.webkitAudioContext)();
+    const t=AC.currentTime,seq=ok?[[660,0],[880,.09],[1175,.18]]:[[240,0],[190,.13]];
+    seq.forEach(([f,d])=>{const o=AC.createOscillator(),g=AC.createGain();o.type=ok?'triangle':'sine';o.frequency.value=f;
+      g.gain.setValueAtTime(.0001,t+d);g.gain.exponentialRampToValueAtTime(.16,t+d+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d+.2);
+      o.connect(g);g.connect(AC.destination);o.start(t+d);o.stop(t+d+.22)});
+  }catch(e){}
+}
+function speak(t){
+  if(!S.set.sound||!t)return;
+  try{
+    const u=new SpeechSynthesisUtterance(String(t).replace(/[|＿]/g,''));u.lang='ja-JP';u.rate=.8;
+    const v=speechSynthesis.getVoices().find(v=>/^ja/i.test(v.lang));if(v)u.voice=v;
+    speechSynthesis.cancel();speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* ============================================================
+   Content: verbs from slides 35-36, plus a few bonus verbs
+   g: u = changes last sound to the "i" sound, ru = drop る, irr = irregular
+   ============================================================ */
+const V=(k,h,r,sk,sh,sr,g,p,e,ep,np,ph,x={})=>({k,h,r,sk,sh,sr,g,p,e,ep,np,ph,...x});
+const VERBS=[
+ V('話す','はなす','hanasu','話し','はなし','hanashi','u','🗣️','talk','talked',['ともだちと','友だちと'],['talk with a friend','talked with a friend']),
+ V('買う','かう','kau','買い','かい','kai','u','🛒','buy','bought',['りんごを','りんごを'],['buy apples','bought apples']),
+ V('読む','よむ','yomu','読み','よみ','yomi','u','📖','read','read',['ほんを','本を'],['read a book','read a book']),
+ V('書く','かく','kaku','書き','かき','kaki','u','✏️','write','wrote',['てがみを','手紙を'],['write a letter','wrote a letter']),
+ V('来る','くる','kuru','来','き','ki','irr','🚪','come','came',['がっこうに','学校に'],['come to school','came to school']),
+ V('待つ','まつ','matsu','待ち','まち','machi','u','⏳','wait','waited',['バスを','バスを'],['wait for the bus','waited for the bus']),
+ V('起きる','おきる','okiru','起き','おき','oki','ru','⏰','wake up','woke up',['６じに','６時に'],['wake up at 6','woke up at 6']),
+ V('わかる','わかる','wakaru','わかり','わかり','wakari','u','💡','understand','understood',['にほんごが','日本語が'],['understand Japanese','understood Japanese']),
+ V('する','する','suru','し','し','shi','irr','💻','do','did',['しゅくだいを','宿題を'],['do homework','did homework']),
+ V('とる','とる','toru','とり','とり','tori','u','📷','take a photo','took a photo',['しゃしんを','写真を'],['take a photo','took a photo']),
+ V('ある','ある','aru','あり','あり','ari','u','📚','have / there is','had / there was',['つくえの うえに ほんが','机の 上に 本が'],['there is a book on the desk','there was a book on the desk'],
+   {en4:['there is / I have','there isn’t / I don’t have','there was / I had','there wasn’t / I didn’t have'],subj:false}),
+ V('寝る','ねる','neru','寝','ね','ne','ru','😴','sleep','slept',['１０じに','１０時に'],['sleep at 10','slept at 10']),
+ V('聞く','きく','kiku','聞き','きき','kiki','u','🎧','listen','listened',['おんがくを','音楽を'],['listen to music','listened to music']),
+ V('帰る','かえる','kaeru','帰り','かえり','kaeri','u','🏠','go home','went home',['うちに','うちに'],['go home','went home']),
+ V('飲む','のむ','nomu','飲み','のみ','nomi','u','🥤','drink','drank',['みずを','水を'],['drink water','drank water']),
+ /* bonus verbs (not on the slides) */
+ V('会う','あう','au','会い','あい','ai','u','🤝','meet','met',['ともだちに','友だちに'],['meet a friend','met a friend'],{bonus:1}),
+ V('食べる','たべる','taberu','食べ','たべ','tabe','ru','🍽️','eat','ate',['あさごはんを','朝ごはんを'],['eat breakfast','ate breakfast'],{bonus:1}),
+ V('行く','いく','iku','行き','いき','iki','u','🚌','go','went',['こうえんに','公園に'],['go to the park','went to the park'],{bonus:1}),
+ V('見る','みる','miru','見','み','mi','ru','👀','watch','watched',['テレビを','テレビを'],['watch TV','watched TV'],{bonus:1}),
+ V('勉強する','べんきょうする','benkyou suru','勉強し','べんきょうし','benkyou shi','irr','🧠','study','studied',['にほんごを','日本語を'],['study Japanese','studied Japanese'],{bonus:1}),
+];
+const CLASSV=VERBS.filter(v=>!v.bonus);
+const FORMS=[
+ {id:'pos',end:'ます',er:'masu',t:'now',yes:true,lab:'Now · Yes'},
+ {id:'neg',end:'ません',er:'masen',t:'now',yes:false,lab:'Now · No'},
+ {id:'past',end:'ました',er:'mashita',t:'before',yes:true,lab:'Before · Yes'},
+ {id:'pastneg',end:'ませんでした',er:'masen deshita',t:'before',yes:false,lab:'Before · No'}];
+const FORM=id=>FORMS.find(f=>f.id===id);
+const verbEn=(v,f)=>{const i=FORMS.findIndex(x=>x.id===(f.id||f));return v.en4?v.en4[i]:[v.e,'don’t '+v.e,v.ep,'didn’t '+v.e][i]};
+const verbForm=(v,f,kanji)=>(kanji?v.sk:v.sh)+f.end;
+
+/* です family: "thing" words */
+const T=(k,h,r,e,p)=>({k,h,r,e,p});
+const THINGS=[
+ T('学生','がくせい','gakusei','a student','🧑‍🎓'),T('先生','せんせい','sensei','a teacher','🧑‍🏫'),T('休み','やすみ','yasumi','a day off','🏖️'),
+ T('ドラマ','ドラマ','dorama','a drama','📺'),T('仕事','しごと','shigoto','work','💼'),T('子ども','こども','kodomo','a child','🧒'),
+ T('シリアル','シリアル','shiriaru','cereal','🥣'),T('大学生','だいがくせい','daigakusei','a college student','🎓')];
+const THFORMS=[{id:'pos',end:'です'},{id:'neg',end:'じゃないです'},{id:'past',end:'でした'},{id:'pastneg',end:'じゃなかったです'}];
+const thEn=(t,id)=>({pos:'is '+t.e,neg:'isn’t '+t.e,past:'was '+t.e,pastneg:'wasn’t '+t.e})[id];
+
+/* vocabulary */
+const W=(k,h,r,e,p,c)=>({k,h,r,e,p,c});
+const WORDS=[
+ W('公園','こうえん','kōen','park','🏞️','place'),W('ベンチ','ベンチ','benchi','bench','🛋️','place'),W('木','き','ki','tree','🌳','place'),
+ W('花','はな','hana','flower','🌸','place'),W('池','いけ','ike','pond','🦆','place'),W('カフェ','カフェ','kafe','café','☕','place'),
+ W('トイレ','トイレ','toire','toilet','🚻','place'),W('コンビニ','コンビニ','konbini','convenience store','🏪','place'),
+ W('人','ひと','hito','person','🧍','life'),W('子ども','こども','kodomo','child','🧒','life'),W('猫','ねこ','neko','cat','🐱','life'),
+ W('犬','いぬ','inu','dog','🐶','life'),W('鳥','とり','tori','bird','🐦','life'),W('魚','さかな','sakana','fish','🐟','life'),W('亀','かめ','kame','turtle','🐢','life'),
+ W('机','つくえ','tsukue','desk','🗄️','room'),W('椅子','いす','isu','chair','🪑','room'),W('箱','はこ','hako','box','📦','room'),
+ W('本','ほん','hon','book','📕','room'),W('ボール','ボール','bōru','ball','⚽','room'),W('くつ','くつ','kutsu','shoes','👟','room'),
+ W('時計','とけい','tokei','clock','🕐','room'),W('窓','まど','mado','window','🪟','room'),W('ペン','ペン','pen','pen','🖊️','room'),
+ W('はさみ','はさみ','hasami','scissors','✂️','room'),W('コンピューター','コンピューター','konpyūtā','computer','💻','room'),W('植物','しょくぶつ','shokubutsu','plant','🪴','room'),
+ W('水','みず','mizu','water','💧','food'),W('牛乳','ぎゅうにゅう','gyūnyū','milk','🥛','food'),W('肉','にく','niku','meat','🥩','food'),
+ W('卵','たまご','tamago','egg','🥚','food'),W('パン','パン','pan','bread','🍞','food'),W('りんご','りんご','ringo','apple','🍎','food'),
+ W('バナナ','バナナ','banana','banana','🍌','food'),W('トマト','トマト','tomato','tomato','🍅','food'),W('クッキー','クッキー','kukkī','cookie','🍪','food'),
+ W('アイスクリーム','アイスクリーム','aisukurīmu','ice cream','🍨','food'),W('バター','バター','batā','butter','🧈','food'),
+ W('ヨーグルト','ヨーグルト','yōguruto','yogurt','🥣','food'),W('ジュース','ジュース','jūsu','juice','🧃','food')];
+const POS=[
+ W('上','うえ','ue','on / above','⬆️','pos'),W('下','した','shita','under / below','⬇️','pos'),W('左','ひだり','hidari','left','⬅️','pos'),
+ W('右','みぎ','migi','right','➡️','pos'),W('前','まえ','mae','in front of','⤵️','pos'),W('後ろ','うしろ','ushiro','behind','⤴️','pos'),
+ W('中','なか','naka','inside','📥','pos'),W('近く','ちかく','chikaku','near','📍','pos')];
+const COLORS=[['あかい','#E4483B','red'],['あおい','#2F6FDE','blue'],['きいろい','#F2C230','yellow'],['みどりの','#2E9D5B','green'],['ピンクの','#F27BB0','pink'],['みずいろの','#6CC8F0','light blue'],['むらさきの','#8A5BD0','purple']];
+const VW=v=>({k:v.k,h:v.h,r:v.r,e:'to '+v.e,p:v.p,c:'verb'});
+const ALLW=[...WORDS,...POS,...CLASSV.map(VW)];
+
+/* sentences for the Sentence Builder. Tokens are  hiragana|kanji  and are separated by spaces. */
+const SENT=[
+ ['loc','ほんは|本は つくえの|机の うえ|上 です','The book is on the desk.'],
+ ['loc','くつは つくえの|机の した|下 です','The shoes are under the desk.'],
+ ['loc','ボールは はこの|箱の なか|中 です','The ball is inside the box.'],
+ ['loc','いすは|椅子は つくえの|机の まえ|前 です','The chair is in front of the desk.'],
+ ['loc','あおい ほんは|本は つくえの|机の ひだり|左 です','The blue book is on the left of the desk.'],
+ ['loc','きいろい ほんは|本は つくえの|机の みぎ|右 です','The yellow book is on the right of the desk.'],
+ ['loc','むらさきの ほんは|本は つくえの|机の ちかく|近く です','The purple book is near the desk.'],
+ ['loc','みずいろの ほんは|本は つくえの|机の うしろ|後ろ です','The light blue book is behind the desk.'],
+ ['loc','ボールは いすの|椅子の うえ|上 です','The ball is on the chair.'],
+ ['loc','あかい ほんは|本は はこの|箱の ちかく|近く です','The red book is near the box.'],
+ ['loc','みどりの ほんは|本は いすの|椅子の ひだり|左 です','The green book is on the left of the chair.'],
+ ['loc','ほんは|本は どこ ですか','Where is the book?'],
+ ['loc','これは つくえの|机の うえ|上 です','This is on the desk.'],
+ ['exist','こうえんに|公園に カフェが あります','There is a café in the park.'],
+ ['exist','こうえんに|公園に ねこが|猫が います','There is a cat in the park.'],
+ ['exist','コンビニに ひとが|人が います','There is a person in the convenience store.'],
+ ['exist','いけに|池に さかなが|魚が います','There are fish in the pond.'],
+ ['exist','こうえんに|公園に ベンチが あります','There is a bench in the park.'],
+ ['exist','いえに いぬが|犬が います','There is a dog at home.'],
+ ['exist','コンビニに トイレが ありますか','Is there a toilet in the convenience store?'],
+ ['exist','こうえんに|公園に かめが|亀が いません','There are no turtles in the park.'],
+ ['exist','あした、|明日、 テストが あります','Tomorrow there is a test.'],
+ ['exist','こうえんに|公園に ひとが|人が いますか','Are there people in the park?'],
+ ['past','きのうは|昨日は やすみ|休み でした','Yesterday was a day off.'],
+ ['past','きのうは|昨日は やすみ|休み じゃなかったです','Yesterday was not a day off.'],
+ ['past','それは にほんの|日本の ドラマ じゃなかったです','That was not a Japanese drama.'],
+ ['past','きのう、|昨日、 べんきょう|勉強 しました','I studied yesterday.'],
+ ['past','きのう、|昨日、 べんきょう|勉強 しませんでした','I did not study yesterday.'],
+ ['past','あさごはんを|朝ごはんを たべ|食べ ませんでした','I did not eat breakfast.'],
+ ['past','あさごはんは|朝ごはんは シリアル でした','Breakfast was cereal.'],
+ ['past','あさごはんは|朝ごはんは シリアル じゃなかったです','Breakfast was not cereal.'],
+ ['past','しゅうまつは|週末は しごと|仕事 でした','The weekend was work.'],
+ ['past','しゅうまつは|週末は しごと|仕事 じゃなかったです','The weekend was not work.'],
+ ['verbs','きのう、|昨日、 ほんを|本を よみました|読みました','I read a book yesterday.'],
+ ['verbs','きのう、|昨日、 みずを|水を のみませんでした|飲みませんでした','I did not drink water yesterday.'],
+ ['verbs','きのう、|昨日、 しゃしんを|写真を とりました','I took a photo yesterday.'],
+ ['verbs','けさ、|今朝、 ６じに|６時に おきませんでした|起きませんでした','I did not wake up at 6 this morning.'],
+ ['verbs','きのう、|昨日、 おんがくを|音楽を ききました|聞きました','I listened to music yesterday.'],
+ ['verbs','きのう、|昨日、 ともだちと|友だちと はなしました|話しました','I talked with a friend yesterday.'],
+ ['verbs','きのう、|昨日、 がっこうに|学校に きませんでした|来ませんでした','I did not come to school yesterday.'],
+ ['verbs','きのう、|昨日、 うちに かえりました|帰りました','I went home yesterday.'],
+ ['verbs','きのう、|昨日、 てがみを|手紙を かきました|書きました','I wrote a letter yesterday.'],
+ ['verbs','きのう、|昨日、 バスを まちませんでした|待ちませんでした','I did not wait for the bus yesterday.']];
+const parseTok=s=>{const [h,k]=s.split('|');return{h,k:k||''}};
+const trap=t=>{
+  const f=(s)=>s.replace(/ませんでした$/,'§').replace(/ました$/,'ませんでした').replace('§','ました').replace(/じゃなかったです$/,'†').replace(/でした$/,'です').replace('†','じゃないです');
+  const h=f(t.h);if(h===t.h||t.h==='です')return null;return{h,k:t.k?f(t.k):''};
+};
+
+const PRAISE=['すごい！ Great!','せいかい！ Correct!','やったね！ Nice!','かんぺき！ Perfect!','いいね！ Good job!','さすが！ Awesome!'];
+
+/* ============================================================
+   Modal, router and shared UI
+   ============================================================ */
+function modal(html,onClose){
+  const m=$('#modal');
+  m.innerHTML=`<div class="mback" role="dialog" aria-modal="true"><div class="modal">${html}</div></div>`;
+  const close=()=>{m.innerHTML='';document.removeEventListener('keydown',esck);onClose&&onClose()};
+  const esck=e=>{if(e.key==='Escape')close()};
+  document.addEventListener('keydown',esck);
+  m.querySelector('.mback').addEventListener('click',e=>{if(e.target.classList.contains('mback')||e.target.closest('[data-close]'))close()});
+  return close;
+}
+function topbar(back){
+  const L=lvlOf(S.xp);
+  return `<header class="top">
+   <div class="brand">${back?'<button class="btn sm" data-go="home">← Menu</button>':'<span class="stamp" aria-hidden="true">動</span>Nihongo Verb Quest'}</div>
+   <div class="topr"><button class="xpchip" data-go="progress" aria-label="My progress"><span class="lvl">${L.n}</span>${S.xp} XP</button>
+   <button class="btn sm" id="setb" aria-label="Settings">⚙ Settings</button></div></header>`;
+}
+function openSettings(){
+  const tg=(id,t,s)=>`<label class="toggle"><input type="checkbox" id="${id}" ${S.set[id]?'checked':''}><span>${t}<small>${s}</small></span></label>`;
+  const close=modal(`<div class="mhead"><h2>Settings</h2><button class="btn sm" data-close>Close</button></div>
+   ${tg('furi','Furigana','Small hiragana above kanji.')}
+   ${tg('kanji','Show kanji','Turn off to see hiragana only.')}
+   ${tg('romaji','Romaji hints','Letters like “ka” on the kana keys and ladders.')}
+   ${tg('sound','Sound','Listen to Japanese and hear game sounds.')}
+   <p class="muted"><small>Your progress is saved on this device only. Clearing browser data erases it.</small></p>
+   <div class="acts"><button class="btn sm bad" id="rst">Reset progress</button></div>`);
+  $$('.toggle input').forEach(i=>i.onchange=()=>{S.set[i.id]=i.checked;save();applySet()});
+  $('#rst').onclick=e=>{
+    if(!e.target.dataset.sure){e.target.dataset.sure=1;e.target.textContent='Tap again to erase everything';return}
+    S={xp:0,m:{},best:{},rounds:0,streak:0,last:'',set:S.set};save();close();route();
+  };
+}
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]');if(g){go(g.dataset.go);return}
+  if(e.target.closest('#setb')){openSettings();return}
+  const s=e.target.closest('[data-say]');if(s){speak(s.dataset.say)}
+});
+const VIEWS={};
+function route(){const n=location.hash.slice(1);(VIEWS[n]||VIEWS.home)();window.scrollTo(0,0)}
+function go(n){if(location.hash==='#'+n||(!location.hash&&n==='home'))route();else location.hash=n}
+addEventListener('hashchange',route);
+
+/* ---- brick helpers ---- */
+function bricks(v,f){
+  const st=`<span class="brick b-stem">${ruby(v.sk,v.sh)}</span>`;
+  const b=(c,t)=>`<span class="brick ${c}">${t}</span>`;
+  return st+({pos:b('b-ma','ます'),neg:b('b-no','ません'),past:b('b-bef','ました'),pastneg:b('b-no','ません')+b('b-bef','でした')})[f.id];
+}
+function ladder(v){
+  return FORMS.map(f=>`<div class="lrow"><div class="llab">${f.lab}</div><div class="lbricks jp">${bricks(v,f)}</div>
+   <div class="len">${esc(verbEn(v,f))}${S.set.romaji?`<small>${esc(v.sr+' '+f.er)}</small>`:''}</div>
+   <button class="btn sm keep" data-say="${esc(v.sh+f.end)}" aria-label="Listen">🔊</button></div>`).join('');
+}
+function thingLadder(t){
+  return THFORMS.map(f=>{
+    const tail={pos:`<span class="brick b-ma">です</span>`,neg:`<span class="brick b-no">じゃない</span><span class="brick b-ma">です</span>`,
+      past:`<span class="brick b-bef">でした</span>`,pastneg:`<span class="brick b-no">じゃ</span><span class="brick b-bef">なかった</span><span class="brick b-ma">です</span>`}[f.id];
+    return `<div class="lrow"><div class="llab">${FORMS.find(x=>x.id===f.id).lab}</div><div class="lbricks jp"><span class="brick b-thing">${ruby(t.k,t.h)}</span>${tail}</div>
+     <div class="len">${esc(thEn(t,f.id))}</div><button class="btn sm keep" data-say="${esc(t.h+f.end)}" aria-label="Listen">🔊</button></div>`}).join('');
+}
+function stemRule(v){
+  const l=s=>s[s.length-1];
+  if(v.g==='ru')return `Drop <b>る</b>: <span class="jp"><b>${esc(v.h)}</b> → <b>${esc(v.sh)}</b></span>`;
+  if(v.g==='irr')return `Special verb: <span class="jp"><b>${esc(v.h)}</b> → <b>${esc(v.sh)}</b></span>`;
+  return `Change the last sound <b class="jp">${l(v.h)}</b> → <b class="jp">${l(v.sh)}</b>: <span class="jp"><b>${esc(v.h)}</b> → <b>${esc(v.sh)}</b></span>`;
+}
+const stars=n=>'★'.repeat(n)+'☆'.repeat(3-n);
+
+/* ============================================================
+   Home
+   ============================================================ */
+const GAMES=[
+ {id:'lab',g:'動',c:'amber',t:'Verb Lab',s:'See how every verb builds from a stem and two bricks.',grp:'verbs'},
+ {id:'conj',g:'変',c:'red',t:'Conjugate It!',s:'Make the now, no, before, and before-no forms.',grp:'verbs',key:'conj'},
+ {id:'time',g:'昨',c:'blue',t:'Yesterday or Every Day?',s:'Pick the right verb form for a whole sentence.',grp:'verbs',key:'time'},
+ {id:'thing',g:'物',c:'green',t:'Thing or Action?',s:'です family or ます family? Then make it past negative.',grp:'verbs',key:'thing'},
+ {id:'sent',g:'文',c:'blue',t:'Sentence Builder',s:'Put the word blocks in order.',grp:'make',key:'sent'},
+ {id:'where',g:'位',c:'green',t:'Where Is the Book?',s:'Location words: うえ, した, ひだり, みぎ and more.',grp:'make',key:'where'},
+ {id:'read',g:'読',c:'amber',t:'Read It!',s:'Kanji, kana, and meaning.',grp:'rw',key:'read'},
+ {id:'spell',g:'字',c:'red',t:'Spell It!',s:'Build words from kana tiles and keys.',grp:'rw',key:'spell'},
+ {id:'write',g:'書',c:'gray',t:'Write It!',s:'Draw kanji and kana with your finger or mouse.',grp:'rw',key:'write'},
+ {id:'learn',g:'学',c:'gray',t:'Word Cards',s:'Look, listen, and review the class words.',grp:'learn'}];
+const bestOf=key=>key?Math.max(0,...[1,2,3].map(l=>S.best[key+':'+l]||0)):0;
+VIEWS.home=function(){
+  const L=lvlOf(S.xp);
+  const card=g=>`<button class="game" data-go="${g.id}"><span class="g c-${g.c}">${g.g}</span><span style="min-width:0"><b>${g.t}</b><span class="sub">${g.s}</span>${g.key?`<span class="stars">${stars(bestOf(g.key))}</span>`:''}</span></button>`;
+  const grp=(id,t)=>`<section class="group"><h3>${t}</h3><div class="games">${GAMES.filter(g=>g.grp===id).map(card).join('')}</div></section>`;
+  app.innerHTML=`${topbar(false)}
+  <section class="hero"><div><h1><span class="jpbig">過去形</span> Past Tense Quest</h1>
+   <p>Read, write, and build Japanese. Turn the 15 class verbs into now, no, before, and before-no.</p></div>
+   <div style="min-width:200px"><div class="muted" style="font-weight:800;font-size:.9rem;margin-bottom:6px">Level ${L.n} · ${L.name}${S.streak>1?` · ${S.streak} day streak`:''}</div><div class="meter"><i style="width:${L.pct}%"></i></div></div></section>
+  <section class="feature"><div class="ladder-mini" aria-hidden="true">
+    <span><span class="brick b-stem">はなし</span><span class="brick b-no">ません</span><span class="brick b-bef">でした</span></span></div>
+   <div style="flex:1 1 220px"><h3>Start here: the two-brick trick</h3><p class="muted">ません is the NO brick. でした is the BEFORE brick. Past + No needs both.</p></div>
+   <button class="btn primary" data-go="lab">Open Verb Lab →</button></section>
+  ${grp('verbs','Verb past tense')}${grp('make','Sentences and places')}${grp('rw','Read and write')}${grp('learn','Study')}`;
+};
+
+/* ============================================================
+   Answer builder: tiles or kana keys
+   ============================================================ */
+const BASE=[['あ','い','う','え','お'],['か','き','く','け','こ'],['さ','し','す','せ','そ'],['た','ち','つ','て','と'],['な','に','ぬ','ね','の'],['は','ひ','ふ','へ','ほ'],['ま','み','む','め','も'],['や','','ゆ','','よ'],['ら','り','る','れ','ろ'],['わ','','を','','ん']];
+const BASER=[['a','i','u','e','o'],['ka','ki','ku','ke','ko'],['sa','shi','su','se','so'],['ta','chi','tsu','te','to'],['na','ni','nu','ne','no'],['ha','hi','fu','he','ho'],['ma','mi','mu','me','mo'],['ya','','yu','','yo'],['ra','ri','ru','re','ro'],['wa','','wo','','n']];
+const MORE=[['が','ぎ','ぐ','げ','ご'],['ざ','じ','ず','ぜ','ぞ'],['だ','ぢ','づ','で','ど'],['ば','び','ぶ','べ','ぼ'],['ぱ','ぴ','ぷ','ぺ','ぽ'],['ゃ','ゅ','ょ','っ','ー']];
+const MORER=[['ga','gi','gu','ge','go'],['za','ji','zu','ze','zo'],['da','ji','zu','de','do'],['ba','bi','bu','be','bo'],['pa','pi','pu','pe','po'],['small ya','small yu','small yo','small tsu','long']];
+const toKata=c=>c==='ー'||!c?c:String.fromCharCode(c.charCodeAt(0)+0x60);
+const HIRA='あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんがぎぐげござじずぜぞだでどばびぶべぼぱぴぷぺぽ'.split('');
+
+function Builder(root,o){
+  const hints=o.hints!==undefined?o.hints:S.set.romaji;
+  let locked=false;
+  const finish=(ok,given)=>{locked=true;o.onCheck(ok,given)};
+  if(o.mode==='tiles'){
+    let ans=[];
+    root.innerHTML=`<div class="arow">${o.prefix?`<span class="pre">${o.prefix}</span>`:''}<span class="slots"></span></div>
+     <div class="bank"></div>
+     <div class="acts"><button class="btn" data-a="clr">Clear</button><button class="btn primary keep" data-a="chk" disabled>Check ✓</button></div>`;
+    const sl=$('.slots',root),bk=$('.bank',root),row=$('.arow',root),chk=$('[data-a=chk]',root);
+    const draw=()=>{
+      sl.innerHTML=ans.length?ans.map(i=>`<button class="tile in" data-r="${i}">${o.bank[i].show}</button>`).join(''):'<span class="ph">Tap the blocks below</span>';
+      bk.innerHTML=o.bank.map((t,i)=>`<button class="tile" data-i="${i}" ${ans.includes(i)?'disabled':''}>${t.show}</button>`).join('');
+      chk.disabled=!ans.length;
+    };
+    draw();
+    root.addEventListener('click',e=>{
+      if(locked)return;
+      const t=e.target.closest('.tile'),a=e.target.closest('[data-a]');
+      if(t&&t.dataset.i!==undefined&&!t.disabled){ans.push(+t.dataset.i);draw()}
+      else if(t&&t.dataset.r!==undefined){ans=ans.filter(i=>i!==+t.dataset.r);draw()}
+      else if(a&&a.dataset.a==='clr'){ans=[];draw()}
+      else if(a&&a.dataset.a==='chk'&&ans.length){
+        const given=ans.map(i=>o.bank[i].h).join(''),ok=o.accept.includes(given);
+        row.classList.add(ok?'ok':'bad');finish(ok,given);
+      }
+    });
+    return;
+  }
+  /* kana key mode */
+  const st={script:o.script||'hira',page:0};
+  root.innerHTML=`<div class="arow">${o.prefix?`<span class="pre">${o.prefix}</span>`:''}<input class="ainput" id="ainp" type="text" lang="ja" inputmode="none" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Your answer" placeholder="Type or tap kana"></div>
+   <div class="acts"><button class="btn" data-a="bs" aria-label="Backspace">⌫ Delete</button><button class="btn" data-a="clr">Clear</button><button class="btn sm" data-a="kb" title="Use your own keyboard">⌨ My keyboard</button><button class="btn primary keep" data-a="chk">Check ✓</button></div>
+   <div class="padbar"><button class="chip" data-s="hira">ひらがな</button><button class="chip" data-s="kata">カタカナ</button><button class="chip" data-p="0">あ–ん</button><button class="chip" data-p="1">゛ ゜ ゃ っ</button></div>
+   <div class="pad"></div>`;
+  const inp=$('#ainp',root),pad=$('.pad',root);
+  const norm=s=>s.normalize('NFKC').replace(/\s+/g,'');
+  const draw=()=>{
+    const rows=st.page?MORE:BASE,rr=st.page?MORER:BASER;
+    pad.innerHTML=rows.map((r,ri)=>r.map((c,ci)=>{
+      if(!c)return '<span class="key empty"></span>';
+      const ch=st.script==='kata'?toKata(c):c;
+      return `<button class="key" data-k="${ch}">${ch}<small>${hints?rr[ri][ci]:''}</small></button>`}).join('')).join('');
+    $$('[data-s]',root).forEach(b=>b.setAttribute('aria-pressed',b.dataset.s===st.script));
+    $$('[data-p]',root).forEach(b=>b.setAttribute('aria-pressed',+b.dataset.p===st.page));
+  };
+  draw();
+  const check=()=>{const g=norm(inp.value);if(!g)return;const ok=o.accept.map(norm).includes(g);inp.readOnly=true;finish(ok,g)};
+  root.addEventListener('click',e=>{
+    if(locked)return;
+    const k=e.target.closest('[data-k]'),a=e.target.closest('[data-a]'),s=e.target.closest('[data-s]'),p=e.target.closest('[data-p]');
+    if(k){inp.value+=k.dataset.k}
+    else if(s){st.script=s.dataset.s;draw()}
+    else if(p){st.page=+p.dataset.p;draw()}
+    else if(a){
+      if(a.dataset.a==='bs')inp.value=inp.value.slice(0,-1);
+      else if(a.dataset.a==='clr')inp.value='';
+      else if(a.dataset.a==='kb'){inp.inputMode='text';inp.focus()}
+      else if(a.dataset.a==='chk')check();
+    }
+  });
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();if(!locked)check()}});
+}
+
+/* ============================================================
+   Round engine
+   ============================================================ */
+let R=null;
+function startRound(cfg){
+  R={cfg,i:0,score:0,streak:0,missed:[],xp:0,done:false};
+  app.innerHTML=`${topbar(true).replace('data-go="home"','data-go="'+cfg.id+'"')}
+   <div class="rbar"><div class="prog"><i id="rp"></i></div><div class="rscore" id="rs"></div></div>
+   <div class="stage" id="stage"></div><div id="fb"></div>`;
+  nextQ();
+}
+function nextQ(){
+  if(R.i>=R.cfg.n)return endRound();
+  R.done=false;R.q=R.cfg.makeQ(R.i,R.q);
+  $('#rp').style.width=(R.i/R.cfg.n*100)+'%';
+  $('#rs').textContent=`${R.i+1} / ${R.cfg.n}  ·  ✓ ${R.score}`;
+  $('#fb').innerHTML='';
+  const st=$('#stage');st.classList.remove('locked');st.innerHTML='';
+  R.cfg.render(R.q,st);
+}
+/* res: {ok, key, label(html of right answer), say, explain(html)} */
+function resolve(res){
+  if(R.done)return;R.done=true;
+  $('#stage').classList.add('locked');
+  record(res.key,res.ok);beep(res.ok);
+  if(res.ok){R.score++;R.streak++;R.xp+=10+Math.min(R.streak,5)}
+  else{R.streak=0;R.missed.push(res.label)}
+  const last=R.i>=R.cfg.n-1;
+  $('#fb').innerHTML=`<div class="fb ${res.ok?'ok':'no'}" role="status"><div class="msg"><b class="big">${res.ok?PRAISE[rnd(PRAISE.length)]:'Almost! Here is the answer:'}</b>
+   <span class="jp" style="font-size:1.35rem">${res.label}</span>${res.explain?`<div style="margin-top:6px">${res.explain}</div>`:''}</div>
+   <button class="btn keep" data-say="${esc(res.say||'')}" aria-label="Listen">🔊</button>
+   <button class="btn primary keep" id="nx">${last?'Finish':'Next'} ▶</button></div>`;
+  $('#nx').focus();
+  $('#nx').onclick=()=>{R.i++;nextQ()};
+  if(res.ok&&res.say)speak(res.say);
+  $('#rs').textContent=`${R.i+1} / ${R.cfg.n}  ·  ✓ ${R.score}`;
+}
+function endRound(){
+  const c=R.cfg,n=c.n,s=R.score,st=s>=n*.9?3:s>=n*.7?2:s>=n*.4?1:0;
+  const gain=R.xp+(st*10);S.xp+=gain;S.rounds++;
+  const bk=c.key+':'+c.level;S.best[bk]=Math.max(S.best[bk]||0,st);save();
+  const msg=st===3?'Perfect round!':st===2?'Great work!':st===1?'Good start. Try again to beat it.':'Keep going. Every miss teaches you something.';
+  app.innerHTML=`${topbar(true)}<div class="stage end"><h2>${msg}</h2><div class="bigstars" aria-label="${st} of 3 stars">${stars(st)}</div>
+   <p class="tgt-en">${s} of ${n} correct · +${gain} XP</p>
+   ${R.missed.length?`<div class="missed"><h3>Review these</h3>${R.missed.map(m=>`<div class="jp" style="font-size:1.2rem;font-weight:800">${m}</div>`).join('')}</div>`:''}
+   <div class="acts"><button class="btn primary" id="again">Play again</button><button class="btn" data-go="${c.id}">Change level</button><button class="btn" data-go="home">Menu</button></div></div>`;
+  $('#again').onclick=()=>startRound(c);
+  if(st===3)beep(true);
+}
+
+/* generic config screen */
+const CFG={};
+function config(o){
+  const c=CFG[o.id]||(CFG[o.id]={level:1,...Object.fromEntries((o.extra||[]).map(x=>[x.key,x.opts[0].v]))});
+  const draw=()=>{
+    app.innerHTML=`${topbar(true)}<div><h2>${o.title}</h2><p class="muted" style="margin-top:6px">${o.intro}</p></div>
+     ${o.pre||''}
+     <div class="cfgl">${o.levels.map((l,i)=>`<button class="lvbtn" data-l="${i+1}" aria-pressed="${c.level===i+1}"><b>Level ${i+1}: ${l[0]}</b><span>${l[1]}</span><span class="stars">${stars(S.best[o.key+':'+(i+1)]||0)}</span></button>`).join('')}</div>
+     ${(o.extra||[]).map(x=>`<div><h3 style="margin-bottom:8px">${x.label}</h3><div class="chips">${x.opts.map(p=>`<button class="chip" data-x="${x.key}" data-v="${esc(p.v)}" aria-pressed="${c[x.key]===p.v}">${p.t}</button>`).join('')}</div></div>`).join('')}
+     <div><button class="btn primary" id="go" style="font-size:1.2rem;padding:.7em 1.6em">Start ▶</button></div>`;
+    $$('.lvbtn').forEach(b=>b.onclick=()=>{c.level=+b.dataset.l;draw()});
+    $$('[data-x]').forEach(b=>b.onclick=()=>{c[b.dataset.x]=b.dataset.v;draw()});
+    $('#go').onclick=()=>o.start(c);
+  };
+  draw();
+}
+
+/* ============================================================
+   Verb Lab (learn the recipe)
+   ============================================================ */
+let labVerb=CLASSV[0];
+VIEWS.lab=function(){
+  const v=labVerb,th=THINGS[0];
+  app.innerHTML=`${topbar(true)}
+  <div><h2>Verb Lab</h2><p class="muted" style="margin-top:6px">Pick a verb. Every verb is a <b>stem</b> plus <b>bricks</b>.</p></div>
+  <div class="vpick" role="group" aria-label="Choose a verb">${VERBS.map((x,i)=>`<button class="vp" data-vi="${i}" aria-pressed="${x===v}"><span>${x.p}</span>${x.k}</button>`).join('')}</div>
+  <div class="card"><div class="qhead"><div class="qpic">${v.p}</div><div><div class="qword">${ruby(v.k,v.h)}</div><div class="qen">to ${esc(v.e)} · ${esc(v.r)}${v.bonus?' · bonus verb':''}</div></div>
+   <button class="btn sm" data-say="${esc(v.h)}" style="margin-left:auto">🔊</button></div>
+   <div class="note"><b>Step 1: make the stem.</b> ${stemRule(v)}</div>
+   <div><b>Step 2: add the bricks.</b>${ladder(v)}</div>
+   <div class="note red"><b>Two bricks:</b> <span class="brick b-no">ません</span> means NO. <span class="brick b-bef">でした</span> means BEFORE. Before + No uses both, in that order: <b class="jp">ません + でした</b>.</div>
+   <div class="acts"><button class="btn primary" id="prac">Practice ${esc(v.k)} →</button></div></div>
+  <div class="cols">
+   <div class="card"><h3>Three kinds of stems</h3>
+    <p><span class="brick b-stem">u-verbs</span> change the last sound: <span class="jp"><b>はなす→はなし</b>, <b>かう→かい</b>, <b>のむ→のみ</b></span></p>
+    <p class="muted"><small>Tricky: かえる, とる, わかる, ある end in る but still change: <span class="jp">かえる→かえり</span>.</small></p>
+    <p><span class="brick b-stem">drop る</span> <span class="jp"><b>おきる→おき</b>, <b>ねる→ね</b></span></p>
+    <p><span class="brick b-stem">special</span> <span class="jp"><b>する→し</b>, <b>くる→き</b></span></p></div>
+   <div class="card"><h3>Thing words use a different ladder</h3>
+    <div class="muted" style="font-size:.9rem">Names of things end in です. Example: ${esc(th.k)} (${esc(th.e)})</div>${thingLadder(th)}
+    <p class="muted"><small>Past + No: <b class="jp">じゃない → じゃなかったです</b>. Do not cross the families!</small></p></div></div>`;
+  $$('.vp').forEach(b=>b.onclick=()=>{labVerb=VERBS[+b.dataset.vi];VIEWS.lab();window.scrollTo(0,0)});
+  $('#prac').onclick=()=>{CFG.conj=CFG.conj||{level:1,focus:'all',pool:'class'};CFG.conj.only=v;go('conj')};
+};
+
+/* ============================================================
+   Word Cards
+   ============================================================ */
+let deck='verbs';
+VIEWS.learn=function(){
+  const sets={verbs:VERBS.map(v=>({k:v.k,h:v.h,r:v.r,e:'to '+v.e,p:v.p,v})),words:WORDS,places:POS};
+  const list=sets[deck];
+  app.innerHTML=`${topbar(true)}<div><h2>Word Cards</h2><p class="muted" style="margin-top:6px">Tap a card to see it big and hear it.</p></div>
+   <div class="chips">${[['verbs','Verbs'],['words','Things and places'],['places','Location words']].map(([id,t])=>`<button class="chip" data-d="${id}" aria-pressed="${deck===id}">${t}</button>`).join('')}</div>
+   <div class="deck">${list.map((w,i)=>`<button class="wc" data-i="${i}"><span class="pic">${w.p}</span><span class="w">${ruby(w.k,w.h)}</span><span class="e">${esc(w.e)}</span></button>`).join('')}</div>`;
+  $$('[data-d]').forEach(b=>b.onclick=()=>{deck=b.dataset.d;VIEWS.learn()});
+  $$('.wc').forEach(b=>b.onclick=()=>{
+    const w=list[+b.dataset.i];speak(w.h);
+    modal(`<div class="mhead"><span class="sheetpic">${w.p}</span><button class="btn sm" data-close>Close</button></div>
+     <div class="qword">${ruby(w.k,w.h)}</div><div class="qen">${esc(w.h)} · ${esc(w.r)} · ${esc(w.e)}</div>
+     <div class="acts"><button class="btn" data-say="${esc(w.h)}">🔊 Listen</button></div>
+     ${w.v?`<div class="note">${stemRule(w.v)}</div><div>${ladder(w.v)}</div>`:''}`);
+  });
+};
+
+/* ============================================================
+   Verb answer UI shared by Conjugate It and the sentence game
+   ============================================================ */
+function charDecoys(v,answer){
+  const have=new Set(answer.split(''));
+  const pool=[...new Set([...'ますせんでしたまみむめもらりるれろ'.split(''),...v.h.split('')])].filter(c=>!have.has(c));
+  return shuffle(pool).slice(0,3);
+}
+function charBank(str,v){
+  const chars=str.split('').concat(charDecoys(v,str));
+  return shuffle(chars).map(c=>({h:c,show:esc(c)}));
+}
+function explainVerb(v,f){
+  const m={pos:'<span class="brick b-ma">ます</span> is the plain “now” brick.',neg:'<span class="brick b-no">ません</span> is the NO brick.',
+   past:'<span class="brick b-bef">ました</span> is the BEFORE brick.',pastneg:'Use both bricks: <span class="brick b-no">ません</span> (NO) then <span class="brick b-bef">でした</span> (BEFORE).'}[f.id];
+  return `<div class="lbricks jp" style="font-size:1.3rem">${bricks(v,f)}</div><div style="margin-top:4px">${m} <small class="muted">${esc(v.sr+' '+f.er)}</small></div>`;
+}
+
+/* ============================================================
+   Game: Conjugate It!
+   ============================================================ */
+VIEWS.conj=function(){
+  const only=(CFG.conj&&CFG.conj.only)||null;
+  config({id:'conj',key:'conj',title:'Conjugate It!',
+   intro:only?`Practicing ${only.k} only.`:'Turn each verb into the form you are asked for.',
+   levels:[['Bricks','The stem is shown. Snap on the ending bricks.'],['Tiles','Build the whole word from kana tiles.'],['Write','Type or tap kana to write the whole word.']],
+   extra:[{key:'focus',label:'Which forms?',opts:[{v:'all',t:'All four forms'},{v:'past',t:'Past only'},{v:'pn',t:'Past negative only'}]},
+          {key:'pool',label:'Which verbs?',opts:[{v:'class',t:'The 15 class verbs'},{v:'all',t:'Plus bonus verbs'}]}],
+   start:c=>{
+     const forms=c.focus==='pn'?[FORM('pastneg')]:c.focus==='past'?[FORM('past'),FORM('pastneg')]:FORMS;
+     const verbs=c.only||only?[c.only||only]:c.pool==='all'?VERBS:CLASSV;
+     const pairs=verbs.flatMap(v=>forms.map(f=>({v,f})));
+     const lvl=c.level;c.only=null;
+     startRound({id:'conj',key:'conj',level:lvl,n:10,
+      makeQ:(i,prev)=>{let q;for(let t=0;t<6;t++){q=pickW(pairs,p=>'v:'+p.v.k+':'+p.f.id);if(!prev||pairs.length<2||q.v!==prev.v||q.f!==prev.f)break}return q},
+      render:(q,st)=>renderConj(q,st,lvl)});
+   }});
+};
+function renderConj(q,st,lvl){
+  const {v,f}=q;
+  st.innerHTML=`<div class="qhead"><div class="qpic">${v.p}</div><div><div class="qword">${ruby(v.k,v.h)}</div><div class="qen">to ${esc(v.e)}</div></div>
+    <button class="btn sm keep" data-say="${esc(v.h)}" style="margin-left:auto" aria-label="Listen">🔊</button></div>
+   <div class="target"><span class="prompt">Make it:</span>
+    <span class="sw"><span class="${f.t==='now'?'on':''}">Now</span><span class="${f.t==='before'?'on':''}">Before</span></span>
+    <span class="sw"><span class="${f.yes?'on':''}">Yes</span><span class="${!f.yes?'on':''}">No</span></span>
+    <span class="tgt-en">“${esc(verbEn(v,f))}”</span></div><div id="bld"></div>`;
+  answerVerb($('#bld',st),v,f,lvl,ok=>resolve({ok,key:'v:'+v.k+':'+f.id,label:ruby(verbForm(v,f,true),verbForm(v,f,false)),say:verbForm(v,f),explain:ok?'':explainVerb(v,f)}));
+}
+function answerVerb(root,v,f,lvl,done){
+  const kana=verbForm(v,f,false),kanji=verbForm(v,f,true);
+  if(lvl===1){
+    const bank=shuffle(['ます','ません','ました','でした']).map(t=>({h:t,show:t}));
+    Builder(root,{mode:'tiles',bank,accept:[f.end],prefix:`<span class="brick b-stem">${ruby(v.sk,v.sh)}</span>`,onCheck:ok=>done(ok)});
+  }else if(lvl===2){
+    Builder(root,{mode:'tiles',bank:charBank(kana,v),accept:[kana],onCheck:ok=>done(ok)});
+  }else{
+    Builder(root,{mode:'pad',accept:[kana,kanji],onCheck:ok=>done(ok)});
+  }
+}
+
+/* ============================================================
+   Game: Yesterday or Every Day? (whole sentence)
+   ============================================================ */
+const PAST_T=[['きのう','昨日','Yesterday'],['おととい','一昨日','The day before yesterday']];
+const NOW_T=[['まいにち','毎日','Every day']];
+VIEWS.time=function(){
+  config({id:'time',key:'time',title:'Yesterday or Every Day?',
+   intro:'Read the time word and the English. Then pick the verb form that completes the sentence.',
+   levels:[['Pick','Choose from four verb forms.'],['Tiles','Build the verb form from kana tiles.'],['Write','Write the verb form with the kana keys.']],
+   extra:[{key:'pool',label:'Which verbs?',opts:[{v:'class',t:'The 15 class verbs'},{v:'all',t:'Plus bonus verbs'}]}],
+   start:c=>{
+     const verbs=c.pool==='all'?VERBS:CLASSV,lvl=c.level;
+     startRound({id:'time',key:'time',level:lvl,n:10,
+      makeQ:(i,prev)=>{
+        const v=pickW(verbs,x=>'t:'+x.k),f=FORMS[rnd(4)],past=f.t==='before';
+        const tw=(past?PAST_T:NOW_T)[rnd((past?PAST_T:NOW_T).length)];
+        return{v,f,tw,past};
+      },
+      render:(q,st)=>{
+        const {v,f,tw}=q;
+        const subj=v.subj===false?'':'I ';
+        const en=v.en4?v.en4:null;
+        const phr=[v.ph[0],'don’t '+v.ph[0],v.ph[1],'didn’t '+v.ph[0]];
+        let sentEn;
+        if(v.subj===false){sentEn=tw[2]+', '+[v.ph[0],v.ph[0].replace('there is','there isn’t'),v.ph[1],v.ph[1].replace('there was','there wasn’t')][FORMS.indexOf(f)]+'.'}
+        else sentEn=tw[2]+', I '+phr[FORMS.indexOf(f)]+'.';
+        st.innerHTML=`<div class="qhead"><div class="qpic">${v.p}</div><div><div class="qen">Dictionary form</div><div class="qword" style="font-size:2rem">${ruby(v.k,v.h)}</div></div></div>
+         <div class="sentence">${jp(tw[1],tw[0])}、${jp(v.np[1],v.np[0])}<span class="blank" id="bl"></span></div>
+         <div class="tgt-en">“${esc(sentEn)}”</div><div id="bld"></div>`;
+        const finish=ok=>{
+          $('#bl').innerHTML=ruby(verbForm(v,f,true),verbForm(v,f,false));
+          resolve({ok,key:'t:'+v.k,label:`${jp(tw[1],tw[0])}、${jp(v.np[1],v.np[0])}${ruby(verbForm(v,f,true),verbForm(v,f,false))}。`,say:tw[0]+'、'+v.np[0]+verbForm(v,f),explain:ok?'':explainVerb(v,f)});
+        };
+        if(lvl===1){
+          const opts=shuffle(FORMS).map(x=>`<button class="choice" data-f="${x.id}">${ruby(verbForm(v,x,true),verbForm(v,x,false))}${S.set.romaji?`<small>${esc(v.sr+' '+x.er)}</small>`:''}</button>`).join('');
+          $('#bld',st).innerHTML=`<div class="choices">${opts}</div>`;
+          $$('.choice',st).forEach(b=>b.onclick=()=>{
+            const ok=b.dataset.f===f.id;b.classList.add(ok?'correct':'wrong');
+            if(!ok)$$('.choice',st).find(x=>x.dataset.f===f.id).classList.add('correct');
+            finish(ok);
+          });
+        }else answerVerb($('#bld',st),v,f,lvl,finish);
+      }});
+   }});
+};
+
+/* ============================================================
+   Game: Thing or Action?
+   ============================================================ */
+VIEWS.thing=function(){
+  config({id:'thing',key:'thing',title:'Thing or Action?',
+   intro:'Is it a THING (です family) or an ACTION (ます family)? Pick the family first, then make it “wasn’t / didn’t”.',
+   pre:`<div class="card"><div class="cols"><div><span class="brick b-thing">THING</span><p class="jp" style="margin-top:6px;font-weight:900;font-size:1.2rem">がくせいじゃなかったです</p></div>
+     <div><span class="brick b-bef">ACTION</span><p class="jp" style="margin-top:6px;font-weight:900;font-size:1.2rem">たべませんでした</p></div></div></div>`,
+   levels:[['Choose','Pick the right ending from four choices.'],['Write','Write the whole past negative with kana keys.']],
+   start:c=>{
+     const lvl=c.level,acts=[...CLASSV.filter(v=>!['ある','わかる'].includes(v.k)),...VERBS.filter(v=>v.bonus)];
+     const items=[...THINGS.map(t=>({kind:'T',t})),...acts.map(v=>({kind:'A',v}))];
+     startRound({id:'thing',key:'thing',level:lvl,n:10,
+      makeQ:()=>pickW(items,x=>'f:'+(x.t?x.t.k:x.v.k)),
+      render:(q,st)=>renderThing(q,st,lvl)});
+   }});
+};
+function renderThing(q,st,lvl){
+  const isT=q.kind==='T',t=q.t,v=q.v;
+  const base=isT?t.h:v.sh,baseK=isT?t.k:v.sk;
+  const word=isT?ruby(t.k,t.h):ruby(v.k,v.h);
+  const en=isT?esc(t.e):'to '+esc(v.e),pic=isT?t.p:v.p;
+  const right=isT?'じゃなかったです':'ませんでした',wrongEnd=isT?'ませんでした':'じゃなかったです';
+  const ans=base+right,ansK=baseK+right;
+  const label=ruby(ansK,ans);
+  const pnEn=isT?thEn(t,'pastneg'):verbEn(v,FORM('pastneg'));
+  const key='f:'+(isT?t.k:v.k);
+  let slip=false;
+  st.innerHTML=`<div class="qhead"><div class="qpic">${pic}</div><div><div class="qword">${word}</div><div class="qen">${en}</div></div></div>
+   <div id="s1"><p class="prompt" style="margin-bottom:10px">Step 1. Is this a thing or an action?</p>
+    <div class="choices"><button class="choice" data-fam="T" style="background:var(--green-soft);border-color:var(--green)">THING<small>names something · です</small></button>
+    <button class="choice" data-fam="A" style="background:var(--amber-soft);border-color:var(--amber)">ACTION<small>something you do · ます</small></button></div><p class="muted" id="hint" style="margin-top:8px"></p></div><div id="s2"></div>`;
+  $$('[data-fam]',st).forEach(b=>b.onclick=()=>{
+    if(b.dataset.fam!==q.kind){slip=true;beep(false);b.disabled=true;
+      $('#hint',st).textContent=isT?'Hmm. Can you DO it? No, it is the name of something. Try again.':'Hmm. Can you DO it? Yes! Try again.';return}
+    beep(true);$('#s1',st).innerHTML=`<span class="brick ${isT?'b-thing':'b-bef'}">${isT?'THING → じゃなかったです':'ACTION → ませんでした'}</span>`;
+    const s2=$('#s2',st);
+    s2.innerHTML=`<p class="prompt" style="margin:6px 0 10px">Step 2. Make it “${esc(pnEn)}”.</p><div id="bld"></div>`;
+    const fin=ok=>{ok=ok&&!slip;resolve({ok,key,label,say:ans,explain:ok?'':`<div class="lbricks jp"><span class="brick b-stem">${ruby(baseK,base)}</span>${isT?'<span class="brick b-no">じゃ</span><span class="brick b-bef">なかった</span><span class="brick b-ma">です</span>':'<span class="brick b-no">ません</span><span class="brick b-bef">でした</span>'}</div>${slip?'<div>Check the family first. ':'<div>'}${isT?'Things: <b class="jp">じゃない → じゃなかったです</b>.':'Actions: <b class="jp">ません + でした</b>.'}</div>`})};
+    if(lvl===1){
+      const opts=shuffle([ans,base+wrongEnd,base+(isT?'でした':'ました'),base+(isT?'じゃないです':'ません')]);
+      $('#bld',s2).innerHTML=`<div class="choices">${opts.map(o=>`<button class="choice" data-o="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
+      $$('.choice',s2).forEach(c=>c.onclick=()=>{const ok=c.dataset.o===ans;c.classList.add(ok?'correct':'wrong');
+        if(!ok)$$('.choice',s2).find(x=>x.dataset.o===ans).classList.add('correct');fin(ok)});
+    }else Builder($('#bld',s2),{mode:'pad',accept:[ans,ansK],onCheck:ok=>fin(ok)});
+  });
+}
+
+/* ============================================================
+   Game: Sentence Builder
+   ============================================================ */
+VIEWS.sent=function(){
+  config({id:'sent',key:'sent',title:'Sentence Builder',
+   intro:'Put the blocks in order to make a Japanese sentence. Particles like は, の, に, が stay stuck to their word.',
+   levels:[['Easy','Only the blocks you need.'],['Tricky','Extra blocks that look right but are wrong.']],
+   extra:[{key:'cat',label:'Topic',opts:[{v:'all',t:'Everything'},{v:'loc',t:'Where things are'},{v:'exist',t:'あります / います'},{v:'past',t:'Past と です'},{v:'verbs',t:'Past verbs'}]}],
+   start:c=>{
+     const lvl=c.level,list=SENT.filter(s=>c.cat==='all'||s[0]===c.cat);
+     const used=[];
+     startRound({id:'sent',key:'sent',level:lvl,n:10,
+      makeQ:()=>{
+        let pool=list.filter(s=>!used.includes(s));if(!pool.length){used.length=0;pool=list}
+        const s=pickW(pool,x=>'s:'+x[1]);used.push(s);return s;
+      },
+      render:(s,st)=>{
+        const toks=s[1].split(' ').map(parseTok),hs=toks.map(t=>t.h).join('');
+        let bank=[...toks];
+        if(lvl>=2){
+          const tr=toks.map(trap).filter(Boolean);
+          const others=shuffle(SENT.filter(x=>x[0]===s[0]&&x!==s).flatMap(x=>x[1].split(' ').map(parseTok))).filter(t=>!toks.some(y=>y.h===t.h)&&t.h!=='です');
+          bank=bank.concat(tr.slice(0,1),others.slice(0,2));
+        }
+        const dis=t=>S.set.kanji&&t.k?ruby(t.k,t.h):esc(t.h);
+        st.innerHTML=`<p class="prompt">Say it in Japanese:</p><div class="tgt-en">“${esc(s[2])}”</div><div id="bld"></div>`;
+        Builder($('#bld',st),{mode:'tiles',bank:shuffle(bank).map(t=>({h:t.h,show:dis(t)})),accept:[hs],
+          onCheck:ok=>resolve({ok,key:'s:'+s[1],label:toks.map(dis).join(' ')+'。',say:hs,explain:`<span class="muted">${esc(s[2])}</span>`})});
+      }});
+   }});
+};
+
+/* ============================================================
+   Game: Where Is the Book?
+   ============================================================ */
+const POSID={うえ:'on',した:'under',ひだり:'left',みぎ:'right',まえ:'front',うしろ:'behind',なか:'in',ちかく:'near'};
+function bookSvg(x,b,s,c){
+  return `<g transform="translate(${x} ${b}) scale(${s})"><ellipse cx="0" cy="1" rx="23" ry="5" fill="rgba(0,0,0,.2)"/>
+   <rect x="-17" y="-30" width="34" height="30" rx="3" fill="${c}" stroke="#16181A" stroke-width="2.5"/>
+   <rect x="-17" y="-30" width="8" height="30" rx="2" fill="rgba(0,0,0,.25)"/><rect x="-4" y="-21" width="16" height="3" rx="1.5" fill="rgba(255,255,255,.75)"/></g>`;
+}
+function sceneSvg(pos,col){
+  const head=`<svg viewBox="0 0 340 250" role="img" aria-label="A picture of where the item is"><rect width="340" height="72" style="fill:var(--blue-soft)"/><rect y="72" width="340" height="178" style="fill:var(--surface-2)"/><line x1="0" y1="72" x2="340" y2="72" style="stroke:var(--line)" stroke-width="3"/>`;
+  if(pos==='なか'){
+    return head+`<polygon points="95,128 245,128 262,150 78,150" fill="#7A4E2B" stroke="#16181A" stroke-width="2.5"/>
+     <circle cx="170" cy="150" r="30" fill="#E4483B" stroke="#16181A" stroke-width="2.5"/><path d="M152 138 q8 -10 20 -8" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".7"/>
+     <rect x="80" y="150" width="180" height="76" fill="#C98B52" stroke="#16181A" stroke-width="2.5"/><rect x="80" y="150" width="180" height="14" fill="#A86F3B" stroke="#16181A" stroke-width="2.5"/>
+     <polygon points="80,150 62,170 62,226 80,226" fill="#B07A45" stroke="#16181A" stroke-width="2.5"/></svg>`;
+  }
+  const near=pos==='ちかく'?`<ellipse cx="170" cy="152" rx="150" ry="92" fill="none" style="stroke:var(--muted)" stroke-width="3" stroke-dasharray="8 8"/>`:'';
+  const back=pos==='うしろ'?bookSvg(172,98,.72,col):'';
+  const under=pos==='した'?bookSvg(170,184,.85,col):'';
+  const desk=`<rect x="112" y="105" width="8" height="48" fill="#7A4E2B" stroke="#16181A" stroke-width="2"/><rect x="220" y="105" width="8" height="48" fill="#7A4E2B" stroke="#16181A" stroke-width="2"/>${under}
+   <rect x="96" y="135" width="11" height="58" fill="#A86F3B" stroke="#16181A" stroke-width="2"/><rect x="233" y="135" width="11" height="58" fill="#A86F3B" stroke="#16181A" stroke-width="2"/>
+   <polygon points="108,105 232,105 252,135 88,135" fill="#D79B5E" stroke="#16181A" stroke-width="2.5"/><rect x="88" y="135" width="164" height="10" fill="#B47A41" stroke="#16181A" stroke-width="2.5"/>`;
+  const on=pos==='うえ'?bookSvg(170,128,.9,col):'';
+  const l=pos==='ひだり'?bookSvg(44,190,1,col):'',r=pos==='みぎ'?bookSvg(298,190,1,col):'';
+  const fr=pos==='まえ'?bookSvg(170,240,1.15,col):'',nr=pos==='ちかく'?bookSvg(292,228,.95,col):'';
+  return head+near+back+desk+on+l+r+fr+nr+'</svg>';
+}
+VIEWS.where=function(){
+  config({id:'where',key:'where',title:'Where Is the Book?',
+   intro:'Look at the picture. The pattern is: <b class="jp">ほんは つくえの ＿＿です</b>, “the book is ＿＿ of the desk.”',
+   levels:[['Pick','Choose the position word.'],['Build','Build the whole sentence.'],['Write','Write the position word in kana.']],
+   start:c=>{
+     const lvl=c.level;
+     startRound({id:'where',key:'where',level:lvl,n:10,
+      makeQ:()=>{const p=pickW(POS,x=>'l:'+x.h);const col=COLORS[rnd(COLORS.length)];return{p,col}},
+      render:({p,col},st)=>{
+        const box=p.h==='なか',item=box?'ボール':'ほん',base=box?'はこの':'つくえの',itemK=box?'ボール':'本',baseK=box?'箱の':'机の';
+        const colTok=box?null:col[0];
+        st.innerHTML=`<div class="scene">${sceneSvg(p.h,col[1])}</div>
+         <p class="prompt" style="text-align:center">${box?'Where is the ball?':`Where is the <b>${col[2]}</b> book?`} <span class="jp"><b>${colTok?colTok+' ':''}${item}は ${base} ＿＿ です</b></span></p><div id="bld"></div>`;
+        const lab=`${colTok?colTok+' ':''}${esc(item)}は ${esc(base)} ${ruby(p.k,p.h)} です`;
+        const fin=ok=>resolve({ok,key:'l:'+p.h,label:lab,say:`${colTok||''}${item}は${base}${p.h}です`,explain:`<span class="jp"><b>${ruby(p.k,p.h)}</b></span> = ${esc(p.e)}`});
+        if(lvl===1){
+          const pool=POS.filter(x=>x!==p&&!(p.h==='ちかく'?['ひだり','みぎ','まえ','うしろ']:['ちかく']).includes(x.h));
+          const opts=shuffle([p,...sample(pool,3)]);
+          $('#bld',st).innerHTML=`<div class="choices">${opts.map(o=>`<button class="choice" data-h="${o.h}">${ruby(o.k,o.h)}${S.set.romaji?`<small>${esc(o.r)}</small>`:''}</button>`).join('')}</div>`;
+          $$('.choice',st).forEach(b=>b.onclick=()=>{const ok=b.dataset.h===p.h;b.classList.add(ok?'correct':'wrong');
+            if(!ok)$$('.choice',st).find(x=>x.dataset.h===p.h).classList.add('correct');fin(ok)});
+        }else if(lvl===2){
+          const toks=[...(colTok?[{h:colTok,k:''}]:[]),{h:item+'は',k:itemK+'は'},{h:base,k:baseK},{h:p.h,k:p.k},{h:'です',k:''}];
+          const decoy=sample(POS.filter(x=>x!==p&&x.h!=='ちかく'),2).map(x=>({h:x.h,k:x.k}));
+          const dis=t=>S.set.kanji&&t.k&&t.k!==t.h?ruby(t.k,t.h):esc(t.h);
+          Builder($('#bld',st),{mode:'tiles',bank:shuffle([...toks,...decoy]).map(t=>({h:t.h,show:dis(t)})),accept:[toks.map(t=>t.h).join('')],onCheck:fin});
+        }else Builder($('#bld',st),{mode:'pad',accept:[p.h,p.k],onCheck:fin});
+      }});
+   }});
+};
+
+/* ============================================================
+   Game: Read It!
+   ============================================================ */
+VIEWS.read=function(){
+  config({id:'read',key:'read',title:'Read It!',
+   intro:'Match kanji, kana, and meanings. Furigana is hidden in this game so you can test your memory.',
+   levels:[['Meaning','See a word, pick the English.'],['Kanji → kana','See kanji, pick the reading.'],['Kana → kanji','See the reading, pick the kanji.']],
+   extra:[{key:'set',label:'Words from',opts:[{v:'all',t:'Everything'},{v:'verbs',t:'Verbs'},{v:'things',t:'Things and places'},{v:'pos',t:'Location words'}]}],
+   start:c=>{
+     const lvl=c.level;
+     let pool=c.set==='verbs'?CLASSV.map(VW):c.set==='things'?WORDS:c.set==='pos'?POS:ALLW;
+     if(lvl>=2)pool=pool.filter(w=>KANJI.test(w.k));
+     startRound({id:'read',key:'read',level:lvl,n:10,
+      makeQ:()=>pickW(pool,w=>'w:'+w.k),
+      render:(w,st)=>{
+        const others=sample(pool.filter(x=>x!==w),3),opts=shuffle([w,...others]);
+        let head,show,okOf,pickLab;
+        if(lvl===1){head=`<div class="qpic">${w.p}</div><div class="qword">${esc(w.k)}</div>`;show=o=>esc(o.e);okOf=o=>o===w;pickLab='What does it mean?'}
+        else if(lvl===2){head=`<div class="qword" style="font-size:4rem">${esc(w.k)}</div>`;show=o=>esc(o.h);okOf=o=>o===w;pickLab='How do you read it?'}
+        else{head=`<div class="qword" style="font-size:3rem">${esc(w.h)}</div><div class="qen">${esc(w.e)}</div>`;show=o=>esc(o.k);okOf=o=>o===w;pickLab='Which kanji is it?'}
+        st.innerHTML=`<div class="qhead">${head}<button class="btn sm keep" data-say="${esc(w.h)}" style="margin-left:auto" aria-label="Listen">🔊</button></div>
+         <p class="prompt">${pickLab}</p><div class="choices">${opts.map((o,i)=>`<button class="choice" data-i="${i}" style="font-size:${lvl===1?'1.1rem':'1.6rem'}">${show(o)}</button>`).join('')}</div>`;
+        $$('.choice',st).forEach(b=>b.onclick=()=>{const o=opts[+b.dataset.i],ok=o===w;b.classList.add(ok?'correct':'wrong');
+          if(!ok)$$('.choice',st).find(x=>opts[+x.dataset.i]===w).classList.add('correct');
+          resolve({ok,key:'w:'+w.k,label:`${ruby(w.k,w.h)} <span class="muted" style="font-size:1rem;font-family:var(--font)">${esc(w.h)} · ${esc(w.r)} · ${esc(w.e)}</span>`,say:w.h})});
+      }});
+   }});
+};
+
+/* ============================================================
+   Game: Spell It!
+   ============================================================ */
+VIEWS.spell=function(){
+  config({id:'spell',key:'spell',title:'Spell It!',
+   intro:'See the picture and the English. Build the Japanese word from kana.',
+   levels:[['Tiles','Tap the kana tiles in order.'],['Keys + hints','Use the kana keys. Romaji hints are on.'],['Keys','Use the kana keys with no hints.']],
+   extra:[{key:'script',label:'Which writing?',opts:[{v:'hira',t:'ひらがな words'},{v:'kata',t:'カタカナ words'},{v:'both',t:'Both'}]}],
+   start:c=>{
+     const lvl=c.level,isKata=w=>/^[゠-ヿ]+$/.test(w.h);
+     let pool=[...WORDS,...POS,...CLASSV.map(VW)].filter(w=>w.h.length<=7&&w.h.length>=2||w.h.length===2);
+     pool=pool.filter(w=>c.script==='both'||(c.script==='kata')===isKata(w));
+     startRound({id:'spell',key:'spell',level:lvl,n:10,
+      makeQ:()=>pickW(pool,w=>'w:'+w.k),
+      render:(w,st)=>{
+        const kata=isKata(w);
+        st.innerHTML=`<div class="qhead"><div class="qpic">${w.p}</div><div><div class="qword" style="font-size:2rem">${esc(w.e)}</div><div class="qen">${kata?'Write it in <b>katakana</b> (borrowed word).':'Write it in <b>hiragana</b>.'}${S.set.romaji||lvl===2?` <span class="muted">${esc(w.r)}</span>`:''}</div></div>
+         <button class="btn sm keep" data-say="${esc(w.h)}" style="margin-left:auto" aria-label="Listen">🔊</button></div><div id="bld"></div>`;
+        const fin=ok=>resolve({ok,key:'w:'+w.k,label:`${ruby(w.k,w.h)} <span class="muted" style="font-size:1rem;font-family:var(--font)">${esc(w.r)}</span>`,say:w.h});
+        if(lvl===1){
+          const sc=kata?toKata:c=>c,extra=sample(HIRA.map(sc).filter(c=>!w.h.includes(c)),3);
+          Builder($('#bld',st),{mode:'tiles',bank:shuffle([...w.h.split(''),...extra]).map(c=>({h:c,show:esc(c)})),accept:[w.h],onCheck:fin});
+        }else Builder($('#bld',st),{mode:'pad',script:kata?'kata':'hira',hints:lvl===2,accept:[w.h,w.k],onCheck:fin});
+      }});
+   }});
+};
+
+/* ============================================================
+   Game: Write It! (draw on a canvas, then self-check)
+   ============================================================ */
+VIEWS.write=function(){
+  config({id:'write',key:'write',title:'Write It!',
+   intro:'Draw with your finger or mouse. Then reveal the answer, compare, and tell the truth about how you did.',
+   levels:[['Trace','A faint guide is shown. Trace over it.'],['Memory','No guide. Write it, then check.']],
+   extra:[{key:'set',label:'What to write',opts:[{v:'kanji',t:'Kanji from reading'},{v:'hira',t:'Hiragana for a kanji word'},{v:'kata',t:'Katakana words'}]}],
+   start:c=>{
+     const lvl=c.level;
+     let pool;
+     if(c.set==='kanji')pool=[...POS,...WORDS].filter(w=>KANJI.test(w.k)&&w.k.length<=3).map(w=>({ans:w.k,w,prompt:`Write the kanji for <b class="jp">${esc(w.h)}</b> (${esc(w.e)})`}));
+     else if(c.set==='hira')pool=[...POS,...WORDS,...CLASSV.map(VW)].filter(w=>KANJI.test(w.k)&&w.h.length<=5).map(w=>({ans:w.h,w,prompt:`Write <b>${esc(w.k)}</b> in hiragana (${esc(w.e)})`}));
+     else pool=WORDS.filter(w=>/^[゠-ヿ]+$/.test(w.h)&&w.h.length<=5).map(w=>({ans:w.h,w,prompt:`Write <b>${esc(w.e)}</b> in katakana <span class="muted">(${esc(w.r)})</span>`}));
+     startRound({id:'write',key:'write',level:lvl,n:8,
+      makeQ:()=>pickW(pool,x=>'wr:'+c.set+':'+x.ans),
+      render:(q,st)=>renderWrite(q,st,lvl,c.set)});
+   }});
+};
+function renderWrite(q,st,lvl,set){
+  const text=q.ans,n=text.length,cw=n<3?230:170,W=cw*n,H=250;
+  st.innerHTML=`<div class="qhead"><div class="qpic">${q.w.p}</div><div class="prompt" style="flex:1 1 200px">${q.prompt}</div><button class="btn sm keep" data-say="${esc(q.w.h)}" aria-label="Listen">🔊</button></div>
+   <div class="canvas-wrap" style="width:min(100%,${W}px)"><canvas id="cv" width="${W}" height="${H}" aria-label="Drawing area"></canvas></div>
+   <p class="muted" style="text-align:center"><small>Tip: top to bottom, left to right.</small></p>
+   <div class="acts" id="wa"><button class="btn" id="undo">Undo</button><button class="btn" id="clr">Clear</button><button class="btn primary keep" id="rev">Show answer</button></div>`;
+  const cv=$('#cv',st),ctx=cv.getContext('2d'),strokes=[];let cur=null,revealed=false;
+  const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+  const redraw=()=>{
+    ctx.clearRect(0,0,W,H);
+    ctx.setLineDash([6,8]);ctx.lineWidth=2;ctx.strokeStyle=css('--line');
+    for(let i=0;i<n;i++){const x=i*cw;ctx.strokeRect(x+4,4,cw-8,H-8);ctx.beginPath();ctx.moveTo(x+cw/2,4);ctx.lineTo(x+cw/2,H-4);ctx.moveTo(x+4,H/2);ctx.lineTo(x+cw-4,H/2);ctx.stroke()}
+    ctx.setLineDash([]);
+    if(lvl===1||revealed){
+      ctx.font=`900 ${Math.min(cw*.8,H*.8)}px "Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillStyle=revealed?css('--red'):css('--muted');ctx.globalAlpha=revealed?.4:.28;
+      [...text].forEach((c,i)=>ctx.fillText(c,i*cw+cw/2,H/2+8));ctx.globalAlpha=1;
+    }
+    ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=11;ctx.strokeStyle=css('--ink');
+    for(const s of strokes){ctx.beginPath();s.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));if(s.length===1)ctx.lineTo(s[0][0]+.1,s[0][1]);ctx.stroke()}
+  };
+  const pt=e=>{const r=cv.getBoundingClientRect();return[(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height]};
+  cv.addEventListener('pointerdown',e=>{if(R.done)return;cv.setPointerCapture(e.pointerId);cur=[pt(e)];strokes.push(cur);redraw()});
+  cv.addEventListener('pointermove',e=>{if(!cur)return;cur.push(pt(e));redraw()});
+  const up=()=>{cur=null};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+  $('#undo',st).onclick=()=>{strokes.pop();redraw()};
+  $('#clr',st).onclick=()=>{strokes.length=0;redraw()};
+  $('#rev',st).onclick=()=>{
+    revealed=true;redraw();speak(q.w.h);
+    $('#wa',st).innerHTML=`<span class="prompt" style="flex:1 1 100%">Compare your writing with the red answer. How did you do?</span>
+     <button class="btn good keep" id="yes">I got it ✓</button><button class="btn bad keep" id="no">Not yet ✗</button>`;
+    const fin=ok=>resolve({ok,key:'wr:'+set+':'+q.ans,label:`${esc(q.ans)} <span class="muted" style="font-size:1rem;font-family:var(--font)">${esc(q.w.r)} · ${esc(q.w.e)}</span>`,say:q.w.h});
+    $('#yes',st).onclick=()=>fin(true);$('#no',st).onclick=()=>fin(false);
+  };
+  (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(redraw);redraw();
+}
+
+/* ============================================================
+   Progress
+   ============================================================ */
+VIEWS.progress=function(){
+  const L=lvlOf(S.xp);
+  const dot=k=>{const m=S.m[k];if(!m)return '<span class="dot" title="Not tried"></span>';
+    const t=m.c+m.w,r=m.c/t,cls=m.c>=3&&r>=.8?'g':r>=.5?'a':'r';return `<span class="dot ${cls}" title="${m.c} right, ${m.w} wrong"></span>`};
+  const tried=Object.keys(S.m).length;
+  app.innerHTML=`${topbar(true)}<div><h2>My Progress</h2><p class="muted" style="margin-top:6px">Saved on this device. Dots show how each verb form is going.</p></div>
+   <div class="card"><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="lvl" style="font-size:1.4rem;min-width:2.2em;height:2.2em">${L.n}</span><div><b style="font-size:1.2rem">${L.name}</b><div class="muted">${S.xp} XP · ${S.rounds} rounds played${S.streak?` · ${S.streak} day streak`:''}</div></div></div>
+    <div class="meter"><i style="width:${L.pct}%"></i></div></div>
+   <div class="card"><h3>Verb forms</h3><div class="legend"><span><span class="dot"></span> not tried</span><span><span class="dot r"></span> needs work</span><span><span class="dot a"></span> getting there</span><span><span class="dot g"></span> strong</span></div>
+    <div class="tbl"><table class="pgrid"><thead><tr><th>Verb</th>${FORMS.map(f=>`<th class="jp">${f.end}</th>`).join('')}</tr></thead><tbody>
+    ${VERBS.map(v=>`<tr><td class="jp"><b>${ruby(v.k,v.h)}</b> <span class="muted">${esc(v.e)}</span></td>${FORMS.map(f=>`<td>${dot('v:'+v.k+':'+f.id)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <p class="muted"><small>${tried} items practiced so far. Games choose your weaker items more often.</small></p></div>`;
+};
+
+/* ============================================================
+   Start
+   ============================================================ */
+(function boot(){const go2=()=>route();window.claude&&window.claude.hot&&window.claude.hot.ready?window.claude.hot.ready(go2):go2()})();
+</script>
